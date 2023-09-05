@@ -1,0 +1,37 @@
+description: >
+  This job triggers the yaml update with the given configs
+
+executor: default
+
+parameters:
+  env:
+    description: "git env folder name for the deploy"
+    type: string
+
+  file-name:
+    description: "file name for the yaml to deploy"
+    type: string
+
+  yaml-app-name:
+    description: "app name in the yaml that needs to be updated"
+    type: string
+
+  branch:
+    description: "branch name to where this will be deployed"
+    type: string
+
+steps:
+  - hold-circleci-argo/update-tag-yaml:
+      type: approval
+
+  - circleci-argo/update-tag-yaml:
+      name: Deploy <<parameters.env>>
+      file-path: klubx-api/templates/<<parameters.env>>/<<parameters.file-name>>.yaml
+      app-name: <<parameters.yaml-app-name>>
+      gitops-repo: git@github.com:klubx/gitops.git
+      gitops-username: CircleCI deployer
+      gitops-email: deployer@klubx.io
+      gitops-deploy-branch: <<parameters.branch>>
+      gitops-repo-ssh-key-fingerprint: $SSH_KEY_FINGERPRINT
+      gitops-repo-ssh-key-host: github.com
+      gitops-repo-ssh-key-hostname: github.com

@@ -1,0 +1,58 @@
+description: >
+  This command sends a notification about the build to klubx slack.
+
+steps:
+  - slack/notify:
+      custom: |
+        {
+          "blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "*[$CIRCLE_PROJECT_REPONAME]* Deployment job on hold, waiting for approval."
+              }
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Branch:*\n$CIRCLE_BRANCH"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Author:*\n$CIRCLE_USERNAME"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*SH1:*\n$CIRCLE_SHA1"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Tag:*\n$CIRCLE_TAG"
+                }
+              ],
+              "accessory": {
+                "type": "image",
+                "image_url": "https://app.klubx.io/favicon.ico",
+                "alt_text": "Klubx logo"
+              }
+            },
+            {
+              "type": "actions",
+              "elements": [
+                {
+                  "type": "button",
+                  "action_id": "basic_on_hold_view",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View Workflow"
+                  },
+                  "url": "${SLACK_PARAM_CIRCLECI_HOST}/workflow-run/${CIRCLE_WORKFLOW_ID}"
+                }
+              ]
+            }
+          ]
+        }
+      event: always

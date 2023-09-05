@@ -1,0 +1,20 @@
+description: >
+  This is a sample executor using Docker and Node that will be used for this orb.
+
+docker:
+  - image: '<<parameters.base-image>>'
+
+resource_class: '<<parameters.resource-class>>'
+
+parameters:
+  base-image:
+    default: cimg/base:stable
+    description: >
+      Pick your base docker image. Default: cimg/base:stable
+    type: string
+
+  resource-class:
+    default: small
+    description: >
+      Pick your resource class. Default: small
+    type: string

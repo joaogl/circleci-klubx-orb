@@ -1,0 +1,32 @@
+description: >
+  This command builds and pushes klubx dockers.
+
+parameters:
+  app:
+    description: "App name to be passed to the Dockerfile as an ARG"
+    type: string
+
+  repo:
+    description: "Repo name to push the image to"
+    type: string
+
+  tag:
+    description: "Image tag to build"
+    type: string
+
+  extra-build-args:
+    description: "Any extra build args to pass down to docker build, default: ''"
+    type: string
+    default: ""
+
+  dockerfile:
+    description: "Dockerfile file name, default: Dockerfile"
+    type: string
+    default: "Dockerfile"
+
+steps:
+    - aws-ecr/build-and-push-image:
+        dockerfile: << parameters.dockerfile >>
+        extra-build-args: '--build-arg app=<< parameters.app >> << parameters.extra-build-args >>'
+        repo: << parameters.repo >>
+        tag: << parameters.tag >>

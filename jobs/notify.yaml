@@ -1,0 +1,7 @@
+description: >
+  This job just triggers the notify
+
+executor: default
+
+steps:
+  - notify-job

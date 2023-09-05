@@ -1,0 +1,54 @@
+description: >
+  This job should build the project and store the pushed docker tag and sha in /tmp/workspace/.vars
+
+executor: default
+
+parameters:
+  remote-docker-version:
+    type: string
+    default: 20.10.11
+    description: "Version for the setup remote docker"
+
+  app:
+    description: "App name to be passed to the Dockerfile as an ARG"
+    type: string
+
+  repo:
+    description: "Repo name to push the image to"
+    type: string
+
+  extra-build-args:
+    description: "Any extra build args to pass down to docker build, default: ''"
+    type: string
+    default: ""
+
+  dockerfile:
+    description: "Dockerfile file name, default: Dockerfile"
+    type: string
+    default: "Dockerfile"
+
+steps:
+  - setup_remote_docker:
+      version: << parameters.remote-docker-version >>
+      docker_layer_caching: true
+
+  - build-project:
+      tag: $CIRCLE_SHA1
+      app: << parameters.app >>
+      repo: << parameters.repo >>
+      extra-build-args: << parameters.extra-build-args >>
+      dockerfile: << parameters.dockerfile >>
+
+  - run:
+      name: Get Docker TAG & SHA
+      command: |
+        mkdir /tmp/workspace
+        echo "export APP_TAG=$CIRCLE_SHA1" >> /tmp/workspace/.vars
+        echo "export APP_SHA=$(sed -e 's#.*@\(\)#\1#' \<<< $(docker inspect --format='{{index .RepoDigests 0}}' $AWS_ECR_ACCOUNT_URL/<< parameters.repo >>:$CIRCLE_SHA1))" >> /tmp/workspace/.vars
+
+  - persist_to_workspace:
+      root: /tmp/workspace
+      paths:
+        - .vars
+
+  - notify-job
